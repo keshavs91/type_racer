@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeRacer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #faf9f6;
+            border: 2px solid #2c2c2c;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 900px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            font-size: 20px;
+            font-weight: 400;
+            color: #2c2c2c;
+            margin-bottom: 40px;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .new-game-btn {
+            background-color: #faf9f6;
+            border: 2px solid #2c2c2c;
+            border-radius: 8px;
+            padding: 12px 40px;
+            font-size: 16px;
+            font-style: italic;
+            color: #2c2c2c;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .new-game-btn:hover {
+            background-color: #2c2c2c;
+            color: #faf9f6;
+        }
+
+        .new-game-btn:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">TypeRacer</div>
+        <div class="content">
+            <button class="new-game-btn">New Game</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // Function to get a cookie
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function generateUserId() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+
+        // Check if guest user ID exists in cookies, if not, generate new one
+        window.addEventListener('DOMContentLoaded', function() {
+            const existingGuestId = getCookie('guest_user_id');
+            if (!existingGuestId) {
+                const newGuestId = generateUserId();
+                setCookie('guest_user_id', newGuestId, 30);
+                console.log('New guest user ID generated and saved:', newGuestId);
+            } else {
+                console.log('Existing guest user ID found:', existingGuestId);
+            }
+        });
+
+        document.querySelector('.new-game-btn').addEventListener('click', function() {
+                console.log('help');
+            alert('Starting new game!');
+            // Add your game initialization logic here
+        });
+
+        }
+    </script>
+</body>
+</html>
