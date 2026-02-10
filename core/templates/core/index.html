@@ -48,6 +48,7 @@
             flex: 1;
             display: flex;
             justify-content: center;
+            flex-direction: column;
         }
 
         /* Divider */
@@ -97,6 +98,7 @@
             background: #fff;
             font-size: 16px;
             cursor: pointer;
+            width: 50%;
             transition: all 0.2s ease;
         }
         .primary-btn:hover {
@@ -106,6 +108,7 @@
     </style>
 </head>
 <body>
+    {% csrf_token %}
     <div class="app-container">
         <div class="title">Type Racer</div>
 
@@ -113,6 +116,7 @@
             <!-- Left section -->
             <div class="left-section">
                 <button class="primary-btn", id='new-room-btn'>Create Room</button>
+                <!-- <button class="primary-btn", id='join-lobby-btn'>Go To Lobby</button> -->
             </div>
 
             <!-- Divider -->
@@ -177,19 +181,47 @@
         });
 
         document.querySelector('#new-room-btn').addEventListener('click', function() {
-            fetch('{% url "create_room" %}')
+            fetch('{% url "create_room" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    'user_id': getCookie('guest_user_id')
+                })
+            })
             .then(res => res.json())
             .then(data => {
+                console.log('new-game-btn');
+                console.log(data);
                 if ('room_name' in data) {
-                    window.location.href = `/room/${data.room_name}`;
+                    window.location.href = `/room/${data["room_name"]}`;
                 }
             });
         });
 
         document.querySelector('#join-room-btn').addEventListener('click', function() {
             room_name = document.getElementById('room-name').value
-            window.location.href = `/room/${room_name}`;
+            fetch(`/room/${room_name}/join`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    'user_id': getCookie('guest_user_id')
+                })
+            })
+            .then(res => res.json()) 
+            .then(data => {
+                console.log('join-room-btn');
+                console.log(data);
+                window.location.href = `/room/${room_name}`;
+            });
         });
+
+
     </script>
 </body>
 </html>
