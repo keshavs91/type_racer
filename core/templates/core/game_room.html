@@ -31,11 +31,111 @@
             min-height: 500px;
         }
 
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
         .header {
             font-size: 24px;
             font-weight: 400;
             color: #2c2c2c;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #2c2c2c;
+        }
+
+        .player-info-label {
+            font-weight: bold;
+        }
+
+        .player-id {
+            color: #5a9e6f;
+            word-break: break-all;
+        }
+
+        .timing-info {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .timing-item {
+            text-align: center;
+        }
+
+        .timing-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .timing-value {
+            font-size: 14px;
+            color: #2c2c2c;
+            font-weight: 500;
+        }
+
+        .scoreboard {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #2c2c2c;
+            border-radius: 12px;
+            background: #fff;
+            max-width: 450px;
+        }
+
+        .scoreboard h3 {
+            margin-bottom: 14px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .scoreboard ul {
+            padding: 0;
+            margin: 0;
+        }
+
+        .scoreboard li {
+            list-style: none;
+            padding: 8px 0;
+            font-size: 14px;
+            display: grid;
+            grid-template-columns: 1fr 80px 60px;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            gap: 10px;
+        }
+
+        .scoreboard li:last-child {
+            border-bottom: none;
+        }
+
+        .score-user {
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .score-wpm {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .score-accuracy {
+            text-align: right;
+            color: #555;
         }
 
         .paragraph-display {
@@ -43,8 +143,8 @@
             border: 2px solid #2c2c2c;
             border-radius: 15px;
             padding: 40px;
-            margin-bottom: 50px;
-            min-height: 120px;
+            margin-bottom: 30px;
+            min-height: 200px;
             display: flex;
             align-items: center;
         }
@@ -60,9 +160,9 @@
         }
 
         .input-label {
-            font-size: 16px;
+            font-size: 14px;
             color: #2c2c2c;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: block;
         }
 
@@ -77,61 +177,48 @@
             outline: none;
             font-family: inherit;
         }
+
         .text-input:focus {
             border-bottom-color: #4a4a4a;
         }
+
         .text-input::placeholder {
             color: #999;
         }
 
-        .scoreboard {
-            margin-top: 30px;
-            padding: 20px;
-            border: 2px solid #2c2c2c;
-            border-radius: 12px;
-            background: #fff;
-            max-width: 360px;
-        }
-        .scoreboard h3 {
-            margin-bottom: 14px;
-            font-weight: 500;
-        }
-        .scoreboard ul {
-            padding: 0;
-            margin: 0;
-        }
-        .scoreboard li {
-            list-style: none;
-            padding: 8px 0;
-            font-size: 14px;
-            display: grid;
-            grid-template-columns: 1fr 60px 70px;
-            align-items: center;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .scoreboard li:last-child {
-            border-bottom: none;
-        }
-        .score-user {
-            font-size: 13px;
-            word-break: break-all;
-        }
-        .score-wpm {
-            text-align: right;
-            font-weight: 500;
-        }
-        .score-accuracy {
-            text-align: right;
-            color: #555;
+        .text-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">Game Room {{ room_name }}</div>
-        {{ room_name|json_script:"room-name" }}
-        {{ users|json_script:"room-users" }}
-        <span style='font-weight: bold;'>Your Id: </span><div class="player"></div>
+        <div class="header-section">
+            <div class="header-left">
+                <div class="header">Game Room {{ room_name }}</div>
+                {{ room_name|json_script:"room-name" }}
+                {{ users|json_script:"room-users" }}
+                <div class="player-info">
+                    <span class="player-info-label">Your Id:</span>
+                    <span class="player-id"></span>
+                </div>
+            </div>
+            <div class="timing-info">
+                <div class="timing-item">
+                    <div class="timing-label">Joined At</div>
+                    <div class="timing-value" id="joined-at">-</div>
+                </div>
+                <div class="timing-item">
+                    <div class="timing-label">Started At</div>
+                    <div class="timing-value" id="started-at">-</div>
+                </div>
+                <div class="timing-item">
+                    <div class="timing-label">Left At</div>
+                    <div class="timing-value" id="left-at">-</div>
+                </div>
+            </div>
+        </div>
 
         <div class="scoreboard">
             <h3>Scores</h3>
@@ -146,7 +233,6 @@
             <label class="input-label">text input box</label>
             <input type="text" class="text-input" placeholder="">
         </div>
-        <!-- <textarea id="chat-log" cols="100" rows="2"></textarea><br> -->
     </div>
 
     <script>
@@ -157,7 +243,6 @@
             paragraphEl.innerHTML = '';
             for (let char of text) {
                 const span = document.createElement('span');
-                // Make spaces visible
                 span.textContent = char;
                 paragraphEl.appendChild(span);
             }
@@ -175,14 +260,34 @@
             }
             return null;
         }
-        const user_id = getCookie('guest_user_id')
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return '-';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins === 1) return '1 Min Ago';
+            if (diffMins < 60) return `${diffMins} Mins Ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours === 1) return '1 Hour Ago';
+            if (diffHours < 24) return `${diffHours} Hours Ago`;
+            
+            return date.toLocaleString();
+        }
+
+        const user_id = getCookie('guest_user_id');
 
         if (!user_id) {
             window.location.href = '/';
         }
 
-        const playerNameText = document.querySelector('.player');
-        playerNameText.textContent = user_id;
+        const playerIdText = document.querySelector('.player-id');
+        playerIdText.textContent = user_id;
+        
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         const roomUsers = JSON.parse(document.getElementById('room-users').textContent);
         const playerSocket = new WebSocket('ws://' + window.location.host + '/ws/room/' + roomName + '/');
@@ -211,12 +316,25 @@
                 `;
 
                 scoreList.appendChild(li);
+
+                <!-- update timing info -->
+                if (stats.joined_at) {
+                    document.getElementById('joined-at').textContent = formatTimestamp(stats.joined_at);
+                }
+                if (stats.started_at) {
+                    document.getElementById('started-at').textContent = formatTimestamp(stats.started_at);
+                }
+                if (stats.left_at) {
+                    document.getElementById('left-at').textContent = formatTimestamp(stats.left_at);
+                }
             }
+        }
+
+        function updateTimingInfo(data) {
         }
 
         playerSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            <!-- document.querySelector('#chat-log').value = (data.message + '\n'); -->
 
             if ('message' in data) {
                 const typedText = data.message;
@@ -230,7 +348,7 @@
                         if (typedChar === expectedChar) {
                             span.style.color = 'green';
                         } else {
-                            span.style.color = 'red'; // wrong char OR wrong space
+                            span.style.color = 'red';
                         }
                     } else {
                         span.style.color = '#2c2c2c';
@@ -240,12 +358,13 @@
 
             if ('scores' in data) {
                 renderScores(data.scores);
+                updateTimingInfo(data.scores);
             }
         };
 
         playerSocket.onclose = function(e) {
-            var inputElement = document.querySelected('.text-input');
-            inputElement.disabled = True;
+            var inputElement = document.querySelector('.text-input');
+            inputElement.disabled = true;
             console.error('Chat socket closed unexpectedly');
         };
 

@@ -3,6 +3,7 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from core.redis_rooms import get_room_users
 
@@ -53,9 +54,10 @@ class PlayerConsumer(WebsocketConsumer):
             user_stats['started_at'] = timezone.now().isoformat()
 
         # store user's elapsed time
-        # user_stats['elapsed_time_s'] = (user_stats['start_time'] - datetime.now()).total_seconds()
-        user_stats['elapsed_time_s'] = 30/60
-
+        _started_at = parse_datetime(user_stats['started_at'])
+        if _started_at is None:
+            return
+        elapsed_time_m = (timezone.now()- _started_at).total_seconds() / 60
 
         # calculate user's scores
         correct_keystroke= 0
@@ -68,7 +70,7 @@ class PlayerConsumer(WebsocketConsumer):
 
         if len(message) > 0:
             total_keystroke = len(message)
-        SCORES[self.room_group_name][user_id]['wpm'] = int(total_keystroke/5)/1
+        SCORES[self.room_group_name][user_id]['wpm'] = int( (total_keystroke/5)/(elapsed_time_m) )
         SCORES[self.room_group_name][user_id]['accuracy'] = int((correct_keystroke/total_keystroke))
         print(SCORES)
         async_to_sync(self.channel_layer.group_send)(

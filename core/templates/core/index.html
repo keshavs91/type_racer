@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -101,12 +102,14 @@
             width: 50%;
             transition: all 0.2s ease;
         }
+
         .primary-btn:hover {
             background: #2c2c2c;
             color: #fff;
         }
     </style>
 </head>
+
 <body>
     {% csrf_token %}
     <div class="app-container">
@@ -115,7 +118,7 @@
         <div class="main-content">
             <!-- Left section -->
             <div class="left-section">
-                <button class="primary-btn", id='new-room-btn'>Create Room</button>
+                <button class="primary-btn" , id='new-room-btn'>Create Room</button>
                 <!-- <button class="primary-btn", id='join-lobby-btn'>Go To Lobby</button> -->
             </div>
 
@@ -125,13 +128,8 @@
             <!-- Right section -->
             <div class="right-section">
                 <div class="join-card">
-                    <input
-                        type="text"
-                        placeholder="Room Code"
-                        class="room-input"
-                        id="room-name"
-                    />
-                    <button class="primary-btn", id='join-room-btn'>Join Room</button>
+                    <input type="text" placeholder="Room Code" class="room-input" id="room-name" />
+                    <button class="primary-btn" , id='join-room-btn'>Join Room</button>
                 </div>
             </div>
         </div>
@@ -152,7 +150,7 @@
         function getCookie(name) {
             const nameEQ = name + "=";
             const ca = document.cookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
+            for (let i = 0; i < ca.length; i++) {
                 let c = ca[i];
                 while (c.charAt(0) == ' ') c = c.substring(1, c.length);
                 if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
@@ -161,7 +159,7 @@
         }
 
         function generateUserId() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 const r = Math.random() * 16 | 0;
                 const v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
@@ -169,7 +167,7 @@
         }
 
         // Check if guest user ID exists in cookies, if not, generate new one
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('DOMContentLoaded', function () {
             const existingGuestId = getCookie('guest_user_id');
             if (!existingGuestId) {
                 const newGuestId = generateUserId();
@@ -180,7 +178,7 @@
             }
         });
 
-        document.querySelector('#new-room-btn').addEventListener('click', function() {
+        document.querySelector('#new-room-btn').addEventListener('click', function () {
             fetch('{% url "create_room" %}', {
                 method: 'POST',
                 headers: {
@@ -191,17 +189,17 @@
                     'user_id': getCookie('guest_user_id')
                 })
             })
-            .then(res => res.json())
-            .then(data => {
-                console.log('new-game-btn');
-                console.log(data);
-                if ('room_name' in data) {
-                    window.location.href = `/room/${data["room_name"]}`;
-                }
-            });
+                .then(res => res.json())
+                .then(data => {
+                    console.log('new-game-btn');
+                    console.log(data);
+                    if ('room_name' in data) {
+                        window.location.href = `/room/${data["room_name"]}`;
+                    }
+                });
         });
 
-        document.querySelector('#join-room-btn').addEventListener('click', function() {
+        document.querySelector('#join-room-btn').addEventListener('click', function () {
             room_name = document.getElementById('room-name').value
             fetch(`/room/${room_name}/join`, {
                 method: 'POST',
@@ -213,15 +211,16 @@
                     'user_id': getCookie('guest_user_id')
                 })
             })
-            .then(res => res.json()) 
-            .then(data => {
-                console.log('join-room-btn');
-                console.log(data);
-                window.location.href = `/room/${room_name}`;
-            });
+                .then(res => res.json())
+                .then(data => {
+                    console.log('join-room-btn');
+                    console.log(data);
+                    window.location.href = `/room/${room_name}`;
+                });
         });
 
 
     </script>
 </body>
+
 </html>
