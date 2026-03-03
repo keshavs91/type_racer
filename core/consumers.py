@@ -1,14 +1,14 @@
 import json
+from datetime import timedelta
+from django.utils import timezone
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from django.utils import timezone
-from django.utils.dateparse import parse_datetime
 
-from core.redis_rooms import get_room_users
+from core.redis_rooms import add_user_to_room, get_game_start, get_room_users, remove_user_from_room, set_channel_user, delete_channel_user, get_channel_user, set_game_start
 
 
-SCORES: dict = {}
+# SCORES: dict = {}
 TEST_TEXT = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
 
 
@@ -16,71 +16,101 @@ class PlayerConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name: str = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name: str = f"room_{self.room_name}"
-        SCORES[self.room_group_name] = {}
-        _users = get_room_users(self.room_name)
-        for u in _users:
-            if u not in SCORES[self.room_group_name].keys():
-                SCORES[self.room_group_name][u] = {'joined_at': timezone.now().isoformat()}
-            else:
-                if 'left_at' in SCORES[self.room_group_name][u]:
-                    print(f'Not allowed: {u} trying to rejoin {room_name}') 
-                    self.close()
-                    return
+        # SCORES[self.room_group_name] = {}
+        # _users = get_room_users(self.room_name)
+        # for u in _users:
+        #     if u not in SCORES[self.room_group_name].keys():
+        #         SCORES[self.room_group_name][u] = {'joined_at': timezone.now().isoformat()}
+        #     else:
+        #         if 'left_at' in SCORES[self.room_group_name][u]:
+        #             print(f'Not allowed: {u} trying to rejoin {self.room_name}') 
+        #             self.close()
+        #             return
 
-        # player joins game-room websocket group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name, self.channel_name
-        )
+        # add user to room's websocket group
+        async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
+
         self.accept()
 
     def disconnect(self, code): # pyright: ignore
         # player leaves game-room websocket group
-        _users = get_room_users(self.room_name)
-        for u in _users:
-            if u in SCORES[self.room_group_name].keys():
-                SCORES[self.room_group_name][u]['left_at'] = timezone.now().isoformat()
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name, self.channel_name
-        )
+        # _users = get_room_users(self.room_name)
+        # for u in _users:
+        #     if u in SCORES[self.room_group_name].keys():
+        #         SCORES[self.room_group_name][u]['left_at'] = timezone.now().isoformat()
+
+        # remove user from room's websocket group
+        async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
+        remove_user_from_room(get_channel_user(self.channel_name), self.room_name)
+        delete_channel_user(self.channel_name)
+
+        async_to_sync(self.channel_layer.group_send)(self.room_group_name, {'type': 'players_update', 'log': f'user removed from room {self.room_name}'})
 
     def receive(self, text_data): # pyright: ignore
-        text_data_json = json.loads(text_data)
-        socket_data = text_data_json
+        socket_data  = json.loads(text_data)
+        print(socket_data)
+        event = socket_data.get('event')
 
-        user_id = socket_data["user_id"]
-        message = socket_data["user_input"]
-        user_stats = SCORES[self.room_group_name].get(user_id, {})
-        if 'started_at' not in user_stats.keys() and len(message) == 1:
-            user_stats['started_at'] = timezone.now().isoformat()
+        if event == 'join':
+            data = socket_data.get('data', {})
+            user_id = data.get('user_id')
+            if user_id is None:
+                self.close()
+                raise Exception('Invalid User Id')
+            add_user_to_room(user_id, self.room_name)
+            set_channel_user(self.channel_name, user_id)
 
-        # store user's elapsed time
-        _started_at = parse_datetime(user_stats['started_at'])
-        if _started_at is None:
-            return
-        elapsed_time_m = (timezone.now()- _started_at).total_seconds() / 60
+            async_to_sync(self.channel_layer.group_send)(self.room_group_name, {'type': 'players_update', 'log': f'user added to room {self.room_name}'})
 
-        # calculate user's scores
-        correct_keystroke= 0
-        total_keystroke = 1
-        for i, _ in enumerate(message):
-            if message[i] == TEST_TEXT[i]:
-                correct_keystroke += 1
+            # if enough players joined then start game
+            if len(get_room_users(self.room_name)) >= 3:
+                async_to_sync(self.channel_layer.group_send)(self.room_group_name, {'type': 'game_start', 'log': f'Starting game in room {self.room_name}'})
 
-        self.send(text_data=json.dumps({f'message_{user_id}': message, f'message': message}))
+        elif event == 'player_progress':
+            data = socket_data.get('data', {})
+            user_id = data.get('user_id')
+            if user_id is None:
+                self.close()
+                raise Exception('Invalid User Id')
 
-        if len(message) > 0:
-            total_keystroke = len(message)
-        SCORES[self.room_group_name][user_id]['wpm'] = int( (total_keystroke/5)/(elapsed_time_m) )
-        SCORES[self.room_group_name][user_id]['accuracy'] = int((correct_keystroke/total_keystroke))
-        print(SCORES)
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {"type": "game.score", "score": SCORES[self.room_group_name]}
-        )
+            # calculate user's scores
+            message = data.get('user_input', '')
+            correct_keystroke= 0
+            total_keystroke = 1
+            for i, _ in enumerate(message):
+                if message[i] == TEST_TEXT[i]:
+                    correct_keystroke += 1
+            elapsed_time_m = (timezone.now()- get_game_start(self.room_name)).total_seconds() / 60
 
-    def game_score(self, event):
-        score = event['score']
+            self.send(text_data=json.dumps({
+                'event': 'player_progress',
+                'data': {
+                    'typed_text': message,
+                    'wpm': int((total_keystroke/5)/(elapsed_time_m)),
+                    'accuracy': int((correct_keystroke/total_keystroke)),
+                }
+            }))
+
+    def players_update(self, event: dict):
+        room_users = get_room_users(self.room_name)
+        print(event['log'])
         self.send(text_data=json.dumps({
-            'type': 'score',
-            'race_over': False,
-            'scores': score
+            'event': event['type'],
+            'data': {
+                'users': room_users,
+                'can_start': len(room_users) > 2,
+            }
         }))
+
+    def game_start(self, event: dict):
+        now = timezone.now()
+        self.send(text_data=json.dumps({
+            'event': event['type'],
+            'data': {
+                'paragraph': TEST_TEXT,
+                'start_at': (now + timedelta(seconds=5)).isoformat(),
+                'run_until': (now + timedelta(seconds=30)).isoformat(),
+            }
+        }))
+        set_game_start(self.room_name, (now+timedelta(seconds=5)).isoformat())
+

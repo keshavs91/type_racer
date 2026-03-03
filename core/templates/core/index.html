@@ -31,12 +31,6 @@
             position: relative;
         }
 
-        .title {
-            font-size: 22px;
-            font-weight: 500;
-            margin-bottom: 40px;
-        }
-
         .main-content {
             display: flex;
             align-items: center;
@@ -107,33 +101,26 @@
             background: #2c2c2c;
             color: #fff;
         }
+        .action-box {
+            width: 200px;
+            height: 50px;
+        }
     </style>
 </head>
 
 <body>
     {% csrf_token %}
-    <div class="app-container">
-        <div class="title">Type Racer</div>
-
-        <div class="main-content">
-            <!-- Left section -->
-            <div class="left-section">
-                <button class="primary-btn" , id='new-room-btn'>Create Room</button>
-                <!-- <button class="primary-btn", id='join-lobby-btn'>Go To Lobby</button> -->
-            </div>
-
-            <!-- Divider -->
-            <div class="divider"></div>
-
-            <!-- Right section -->
-            <div class="right-section">
-                <div class="join-card">
-                    <input type="text" placeholder="Room Code" class="room-input" id="room-name" />
-                    <button class="primary-btn" , id='join-room-btn'>Join Room</button>
-                </div>
+    <div style="display:flex; flex-direction:column; text-align: center;">
+        <h1>Type Racer</h1>
+        <div style="display:flex; flex-direction:row;">
+            <button class="primary-btn action-box" , id='new-room-btn'>Create Room</button>
+            <div style="padding-left:50px;">
+                <input type="text" placeholder="Room Code" class="room-input action-box" id="room-name" style="width: 110px; margin-bottom:20px"/>
+                <button class="primary-btn", style="height: 50px; width: 90px;" , id='join-room-btn'>Join</button>
             </div>
         </div>
     </div>
+
     <script>
         // Function to set a cookie
         function setCookie(name, value, days) {

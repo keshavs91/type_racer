@@ -5,137 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Room - TypeRacer</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f5;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background-color: #faf9f6;
-            border: 2px solid #2c2c2c;
-            border-radius: 20px;
-            padding: 40px;
-            width: 100%;
-            max-width: 1100px;
-            min-height: 500px;
-        }
-
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 30px;
-        }
-
-        .header-left {
-            flex: 1;
-        }
-
-        .header {
-            font-size: 24px;
-            font-weight: 400;
-            color: #2c2c2c;
-            margin-bottom: 20px;
-        }
-
-        .player-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #2c2c2c;
-        }
-
-        .player-info-label {
-            font-weight: bold;
-        }
-
-        .player-id {
-            color: #5a9e6f;
-            word-break: break-all;
-        }
-
-        .timing-info {
-            display: flex;
-            gap: 40px;
-            align-items: flex-start;
-        }
-
-        .timing-item {
-            text-align: center;
-        }
-
-        .timing-label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        .timing-value {
-            font-size: 14px;
-            color: #2c2c2c;
-            font-weight: 500;
-        }
-
-        .scoreboard {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 2px solid #2c2c2c;
-            border-radius: 12px;
-            background: #fff;
-            max-width: 450px;
-        }
-
-        .scoreboard h3 {
-            margin-bottom: 14px;
-            font-weight: 500;
-            font-size: 16px;
-        }
-
-        .scoreboard ul {
-            padding: 0;
-            margin: 0;
-        }
-
-        .scoreboard li {
-            list-style: none;
-            padding: 8px 0;
-            font-size: 14px;
-            display: grid;
-            grid-template-columns: 1fr 80px 60px;
-            align-items: center;
-            border-bottom: 1px solid #e0e0e0;
-            gap: 10px;
-        }
-
-        .scoreboard li:last-child {
-            border-bottom: none;
-        }
-
-        .score-user {
-            font-size: 13px;
-            word-break: break-all;
-        }
-
-        .score-wpm {
-            text-align: right;
-            font-weight: 500;
-        }
-
-        .score-accuracy {
-            text-align: right;
-            color: #555;
         }
 
         .paragraph-display {
@@ -146,25 +17,47 @@
             margin-bottom: 30px;
             min-height: 200px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
         }
-
         .paragraph-text {
             font-size: 18px;
             color: #2c2c2c;
             line-height: 1.6;
         }
 
-        .input-section {
-            position: relative;
+        .basic-btn {
+            background-color: #4f46e5;   /* Indigo */
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .basic-btn:hover {
+            background-color: #4338ca;
+        }
+        .basic-btn:active {
+            transform: scale(0.97);
+        }
+        .basic-btn:disabled {
+            background-color: #a5b4fc;
+            cursor: not-allowed;
         }
 
-        .input-label {
-            font-size: 14px;
-            color: #2c2c2c;
-            margin-bottom: 8px;
-            display: block;
-        }
+        /* .input-section { */
+        /*     position: relative; */
+        /* } */
+        /**/
+        /* .input-label { */
+        /*     font-size: 14px; */
+        /*     color: #2c2c2c; */
+        /*     margin-bottom: 8px; */
+        /*     display: block; */
+        /* } */
+        /**/
 
         .text-input {
             width: 100%;
@@ -177,79 +70,43 @@
             outline: none;
             font-family: inherit;
         }
-
         .text-input:focus {
             border-bottom-color: #4a4a4a;
         }
-
         .text-input::placeholder {
             color: #999;
         }
-
         .text-input:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header-section">
-            <div class="header-left">
-                <div class="header">Game Room {{ room_name }}</div>
-                {{ room_name|json_script:"room-name" }}
-                {{ users|json_script:"room-users" }}
-                <div class="player-info">
-                    <span class="player-info-label">Your Id:</span>
-                    <span class="player-id"></span>
-                </div>
+
+        <div style="display:flex; flex-direction:column">
+            <h1>Room Name: {{ room_name }}</h1>
+            {{ room_name|json_script:"room-name" }}
+            <div class="player-info">
+                <h3>Players</h3>
+                <ul id="players-list"><ul>
             </div>
-            <div class="timing-info">
-                <div class="timing-item">
-                    <div class="timing-label">Joined At</div>
-                    <div class="timing-value" id="joined-at">-</div>
+            <div>
+            </div>
+            <div class="paragraph-display">
+                <div style="display: flex; justify-content: flex-end;">
+                    <span class="game-countdown">Not Started Yet</span>
                 </div>
-                <div class="timing-item">
-                    <div class="timing-label">Started At</div>
-                    <div class="timing-value" id="started-at">-</div>
-                </div>
-                <div class="timing-item">
-                    <div class="timing-label">Left At</div>
-                    <div class="timing-value" id="left-at">-</div>
-                </div>
+                <p class="paragraph-text"></p>
+            </div>
+            <div class="input-section">
+                <label class="input-label">text input box</label>
+                <input type="text" class="text-input" placeholder="">
             </div>
         </div>
-
-        <div class="scoreboard">
-            <h3>Scores</h3>
-            <ul id="score-list"></ul>
-        </div>
-
-        <div class="paragraph-display">
-            <p class="paragraph-text"></p>
-        </div>
-
-        <div class="input-section">
-            <label class="input-label">text input box</label>
-            <input type="text" class="text-input" placeholder="">
-        </div>
-    </div>
 
     <script>
-        const paragraphText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-
-        const paragraphEl = document.querySelector('.paragraph-text');
-        function renderParagraph(text) {
-            paragraphEl.innerHTML = '';
-            for (let char of text) {
-                const span = document.createElement('span');
-                span.textContent = char;
-                paragraphEl.appendChild(span);
-            }
-        }
-
-        renderParagraph(paragraphText);
-
         function getCookie(name) {
             const nameEQ = name + "=";
             const ca = document.cookie.split(';');
@@ -267,43 +124,39 @@
             const now = new Date();
             const diffMs = now - date;
             const diffMins = Math.floor(diffMs / 60000);
-            
+
             if (diffMins < 1) return 'Just now';
             if (diffMins === 1) return '1 Min Ago';
             if (diffMins < 60) return `${diffMins} Mins Ago`;
-            
+
             const diffHours = Math.floor(diffMins / 60);
             if (diffHours === 1) return '1 Hour Ago';
             if (diffHours < 24) return `${diffHours} Hours Ago`;
-            
+
             return date.toLocaleString();
         }
 
-        const user_id = getCookie('guest_user_id');
+        function renderPlayers(players, currentPlayer) {
+            const playersList = document.getElementById('players-list');
+            playersList.innerHTML = '';
 
-        if (!user_id) {
-            window.location.href = '/';
+            for (const userId of players) {
+                const li = document.createElement('li');
+                if (userId == currentPlayer) {
+                    li.innerHTML = `
+                        <span class='player-id' style='color: green;'>${userId}</span>
+                    `
+                } else {
+                    li.innerHTML = `
+                        <span class='player-id'>${userId}</span>
+                    `
+                }
+                playersList.appendChild(li);
+            }
         }
 
-        const playerIdText = document.querySelector('.player-id');
-        playerIdText.textContent = user_id;
-        
-        const roomName = JSON.parse(document.getElementById('room-name').textContent);
-        const roomUsers = JSON.parse(document.getElementById('room-users').textContent);
-        const playerSocket = new WebSocket('ws://' + window.location.host + '/ws/room/' + roomName + '/');
-
-        const inputBox = document.querySelector('.text-input');
-        const targetText = document.querySelector('.paragraph-text').textContent;
-
-        inputBox.addEventListener('input', function(e) {
-            playerSocket.send(JSON.stringify({
-                'user_id': user_id,
-                'user_input': e.target.value
-            }));
-        });
-
         function renderScores(scores) {
-            const scoreList = document.getElementById('score-list');
+            const scoreList = document.getElementById('players-list');
             scoreList.innerHTML = '';
 
             for (const [user, stats] of Object.entries(scores)) {
@@ -316,28 +169,110 @@
                 `;
 
                 scoreList.appendChild(li);
-
-                <!-- update timing info -->
-                if (stats.joined_at) {
-                    document.getElementById('joined-at').textContent = formatTimestamp(stats.joined_at);
-                }
-                if (stats.started_at) {
-                    document.getElementById('started-at').textContent = formatTimestamp(stats.started_at);
-                }
-                if (stats.left_at) {
-                    document.getElementById('left-at').textContent = formatTimestamp(stats.left_at);
-                }
             }
         }
 
-        function updateTimingInfo(data) {
+        function toggleInput(enable) {
+            var inputElement = document.querySelector('.text-input');
+            inputElement.disabled = !enable;
+        }
+        // get user from cookies
+        const USER_ID = getCookie('guest_user_id');
+        if (!USER_ID) {
+            window.location.href = '/';
         }
 
-        playerSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
+        canStart = false;
+        roomUsers = [];
 
-            if ('message' in data) {
-                const typedText = data.message;
+        // Focus on input when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleInput(false);
+        });
+
+        // connect to the room
+        const ROOM_NAME = JSON.parse(document.getElementById('room-name').textContent);
+        const playerSocket = new WebSocket('ws://' + window.location.host + '/ws/room/' + ROOM_NAME + '/');
+
+        playerSocket.onopen = function () {
+            console.log('onopen');
+            playerSocket.send(JSON.stringify({
+                event: "join", 
+                data: {
+                    user_id: USER_ID
+                }
+            }));
+        };
+
+        playerSocket.onmessage = function(e) {
+            const socketData = JSON.parse(e.data);
+            const event = socketData.event;
+            const data = socketData.data;
+
+            let interval = null;
+            let intervalGameRuntime = null;
+
+            console.log(event);
+            console.log(data);
+
+            if (event == 'players_update') {
+                roomUsers = data.users;
+                renderPlayers(data.users, USER_ID)
+
+                canStart = data.can_start;
+                if (canStart == false) {
+                    const paragraphEl = document.querySelector('.paragraph-text');
+                    paragraphEl.innerHTML = 'Waiting for all players to join. Once enough players countdown will start automatically';
+                }
+            } else if (event == 'game_start') {
+                paragraphText = data.paragraph;
+                const paragraphEl = document.querySelector('.paragraph-text');
+                const gameCountdown = document.querySelector('.game-countdown');
+
+                function updateCountdownGameRuntime() {
+                    const targetTime = new Date(data.run_until);
+                    const now = new Date().getTime();
+                    const diff = targetTime - now;
+
+                    if (diff <= 0) {
+                        clearInterval(intervalGameRuntime);
+                        toggleInput(false);
+                        return;
+                    }
+
+                    const seconds = Math.floor((diff / 1000) % 60);
+                    gameCountdown.textContent = `${seconds}`;
+                }
+
+                function updateCountdown() {
+                    const targetTime = new Date(data.start_at);
+                    const now = new Date().getTime();
+                    const diff = targetTime - now;
+
+                    if (diff <= 0) {
+                        paragraphEl.textContent = '';
+                        for (let char of paragraphText) {
+                            const span = document.createElement('span');
+                            // Make spaces visible
+                            span.textContent = char;
+                            paragraphEl.appendChild(span);
+                        }
+                        clearInterval(interval);
+                        toggleInput(true);
+                        updateCountdownGameRuntime();
+                        const intervalGameRuntime = setInterval(updateCountdownGameRuntime, 1000);
+                        return;
+                    }
+
+                    const seconds = Math.floor((diff / 1000) % 60);
+                    paragraphEl.textContent = `${seconds}`;
+                }
+
+                updateCountdown(); // run immediately
+                intervel = setInterval(updateCountdown, 1000);
+            } else if (event == 'player_progress') {
+                const paragraphEl = document.querySelector('.paragraph-text');
+                const typedText = data.typed_text;
                 const spans = paragraphEl.querySelectorAll('span');
 
                 spans.forEach((span, index) => {
@@ -355,24 +290,23 @@
                     }
                 });
             }
-
-            if ('scores' in data) {
-                renderScores(data.scores);
-                updateTimingInfo(data.scores);
-            }
         };
 
         playerSocket.onclose = function(e) {
-            var inputElement = document.querySelector('.text-input');
-            inputElement.disabled = true;
+            toggleInput(false);
             console.error('Chat socket closed unexpectedly');
         };
 
-        // Focus on input when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelector('.text-input').focus();
-            console.log(roomUsers);
+        const inputBox = document.querySelector('.text-input');
+        inputBox.addEventListener('input', function(e) {
+            playerSocket.send(JSON.stringify({
+                event: 'player_progress',
+                data: {
+                    user_id: USER_ID,
+                    user_input: e.target.value
+                }
+            }));
         });
+
     </script>
 </body>
-</html>
